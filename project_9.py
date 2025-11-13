@@ -1,38 +1,24 @@
-from library.project_5 import calc_balance
-from library.project_5 import financial_status
-from library.Classes_9 import Budget
 import os
 
-os.system('cls' if os.name == 'nt' else clear)
 
-total_expense = []
+os.system('cls' if os.name == 'nt' else 'clear')
 
-print("Hey there, this is BudgetBuddy! Your personal Budgeting Assistant.")
+name = input("What's your name? ")
+print(f"Hey {name}, this is BudgetBuddy! Let's check your finances.")
 
-name = input("Enter your name: ")
+income = float(input("Please enter your monthly income: "))
 
-income = input("Hey " +name+ ", This is BudgetBuddy! Your personal Budgeting Assistant. Can you enter your income?: ")
+num_expenses = int(input("How many number of expenses you want to enter?:"))
 
-#general process for any expense:
-proceed = True
+expenses = []
+for i in range(num_expenses):
+    e = float(input(f"Enter expense {i+1} (numbers only):"))
+    expenses.append(e)
 
-while proceed:
-
-    budget = Budget()
-
-    budget.add_expenses()
-
-    total_expense.append(budget.get_expenses())
-
-    budget.get_expense_details()
-    
-    x = input("would you like to continue?").lower()
-    if(x == "no"):
-        proceed = False
-    
-
-balance = calc_balance(income, sum(total_expense))
-
-financial_status(balance)
+raw_expense_total = sum(expenses)
+print(f"\nYou entered {num_expenses} expenses totaling ${raw_expense_total:.2f}")
 
 
+
+
+print(f"\nYou entered {num_expenses} expenses totaling")
