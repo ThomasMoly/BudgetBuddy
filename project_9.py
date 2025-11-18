@@ -15,8 +15,7 @@ for i in range(num_expenses):
     e = float(input(f"Enter expense {i+1} (numbers only):"))
     expenses.append(e)
 
-raw_expense_total = sum(expenses)
-print(f"\nYou entered {num_expenses} expenses totaling ${raw_expense_total:.2f}")
+print(f"\nYou entered {num_expenses} expenses totaling $:.2f")
 
 
 
