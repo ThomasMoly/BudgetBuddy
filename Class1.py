@@ -9,11 +9,10 @@ class DataManager:
         # Defines "Name Data"
         self.usr_nm = usr_nm
         self.passwrd = passwrd
+        self.fin_struct = {}
         if __name__!="__main__":
             if accnt_stat=="old":
                 self.dat_retrieve()
-            elif accnt_stat=="new":
-                self.fin_struct = {}
         elif __name__=="__main__":
 #            print(f"ACCOUNT DATA:\n  Username: {self.usr_nm}\n  Password: {self.passwrd}\n  Status: {accnt_stat}")
             self.fin_struct = {}
@@ -59,7 +58,6 @@ class DataManager:
         self.fin_struct = json.loads(decrypted_str)
 
         print("Data decrypted successfully.")
-        return self.fin_struct
 
     def struct_integrate(self, in_ent):
         input_entry=in_ent
@@ -70,20 +68,18 @@ class DataManager:
 
             # Type-cast category and name:
             if itm_type == "e":
-                category = str(input_entry[4])
-                name = str(input_entry[5])
+                category = str(input_entry[3])
+                name = str(input_entry[4])
 
             # Type-cast price:
             if itm_type == "i":
                 money_val = float(input_entry[3])
             elif itm_type == "e":
-                money_val = float(input_entry[6])
+                money_val = float(input_entry[5])
 
             # Type-cast year, month, day:
             year = int(input_entry[1])
             month = int(input_entry[2])
-            if itm_type == "e":
-                day = int(input_entry[3])
         except:
             print("Error: One or more values has invalid type.")
             exit()
@@ -97,48 +93,29 @@ class DataManager:
         if month not in range(1,13):
             print("Error: Invalid Month.")
             exit()
-        # Checks for valid days (including leap days):
-        if itm_type == "e":
-            if day < 0:
-                print("Error: Invalid Day.")
-                exit()
-            if (month in (1,3,5,7,8,10,12)) and (day > 31):
-                print("Error: Invalid Day.")
-                exit()
-            elif (month in (4,6,9,11)) and (day > 30):
-                print("Error: Invalid Day.")
-                exit()
-            elif (month == 2) and (((not ((((year % 4) == 0) and ((year % 100) != 0)) or ((year % 400) == 0)) and (day > 28))) or (day > 29)):
-                print("Error: Invalid Day.")
-                exit()
 
             # Defines basic expense unit of data: [Name, Price]:
-            if itm_type == "e":
-                money_list = input_entry[5::]
+        if itm_type == "e":
+            money_list = input_entry[4::]
 
-            # Creates year and month data within fin_struct if necessary:
-            if (self.fin_struct).get(year, "NULL") == "NULL":
-                self.fin_struct[year] = {}
+        # Creates year and month data within fin_struct if necessary:
+        if (self.fin_struct).get(year, "NULL") == "NULL":
+            self.fin_struct[year] = {}
 
-            if (self.fin_struct[year]).get(month, "NULL") == "NULL":
-                self.fin_struct[year][month] = {}
+        if (self.fin_struct[year]).get(month, "NULL") == "NULL":
+            self.fin_struct[year][month] = {}
 
-            # Integrates data from input_entry into fin_struct:
-            if itm_type == "i":
-                self.fin_struct[year][month][itm_type] = money_val
-            elif itm_type == "e":
-                if (self.fin_struct[year][month]).get(itm_type, "NULL") == "NULL":
-                    self.fin_struct[year][month][itm_type] = {}
-                if (self.fin_struct[year][month][itm_type]).get(category, "NULL") == "NULL":
-                    self.fin_struct[year][month][itm_type][category] = {}
-                if (self.fin_struct[year][month][itm_type][category]).get(day, "NULL") == "NULL":
-                    self.fin_struct[year][month][itm_type][category][day] = []
-            (self.fin_struct[year][month][itm_type][category][day]).append(money_list)
-        return self.fin_struct
+        # Integrates data from input_entry into fin_struct:
+        if itm_type == "i":
+            self.fin_struct[year][month][itm_type] = money_val
+        elif itm_type == "e":
+            if (self.fin_struct[year][month]).get(itm_type, "NULL") == "NULL":
+                self.fin_struct[year][month][itm_type] = {}
+            if (self.fin_struct[year][month][itm_type]).get(category, "NULL") == "NULL":
+                self.fin_struct[year][month][itm_type][category] = {}
+        (self.fin_struct[year][month][itm_type][category]).append(money_list)
 
     def dat_save(self, user_input):
-        # Integrate entry into finance structure
-        integrated_info = self.struct_integrate(user_input)
 
         file_nm = self.usr_nm
         keywrd = self.passwrd
@@ -164,7 +141,7 @@ class DataManager:
         cipher = Fernet(key)
 
         # --- Convert Python dict → JSON string → bytes ---
-        json_string = json.dumps(integrated_info)
+        json_string = json.dumps(self.fin_struct)
         json_bytes = json_string.encode()
 
         # --- Encrypt JSON ---
@@ -181,9 +158,9 @@ class DataManager:
 if __name__=="__main__":
     fin_struct = {}                                              # TO BE COPIED TO main?
     # Defines dummy input list:
-    in_ent_1 = ["e", 2025, 11, 28, "Food", "eggs", 6.98]
-    in_ent_2 = ["e", 2025, 11, 28, "Subscriptions", "Youtube Music", 14.95]
-    in_ent_3 = ["e", 2025, 10, 23, "Debts", "Mastercard", 495.76]
+    in_ent_1 = ["e", 2025, 11, "Food", "eggs", 6.98]
+    in_ent_2 = ["e", 2025, 11, "Subscriptions", "Youtube Music", 14.95]
+    in_ent_3 = ["e", 2025, 10, "Debts", "Mastercard", 495.76]
     DatManage=DataManager("Adrian", "Password1234", "new")
     fin_struct = DatManage.struct_integrate(in_ent_1)
     fin_struct = DatManage.struct_integrate(in_ent_2)
@@ -191,6 +168,6 @@ if __name__=="__main__":
 
     DatManage.dat_save(in_ent_1)
 
-    dm = DataManager("Adrian", "Password1234", "old")
+    dm = DataManager("Person1", "Password1234", "old")
     data = dm.dat_retrieve()
     print(data)
