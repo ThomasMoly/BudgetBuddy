@@ -136,23 +136,22 @@ class DataManager:
             (self.fin_struct[year][month][itm_type][category][day]).append(money_list)
         return self.fin_struct
 
-    def dat_save(self, user_input):
-        # Integrate entry into finance structure
-        integrated_info = self.struct_integrate(user_input)
+    def dat_save(self):
+        integrated_info = self.fin_struct  # save the full dictionary
 
         file_nm = self.usr_nm
         keywrd = self.passwrd
-        file_path = Path(f"Account_Data/{file_nm}.bin")  # encrypted file
+        file_path = Path(f"Account_Data/{file_nm}.bin")
         key_path = Path("key.json")
 
-        # --- Load keys.json (guaranteed to exist) ---
+        # --- Load keys.json ---
         with open(key_path, "r") as f:
             try:
                 key_data = json.load(f)
             except json.JSONDecodeError:
                 key_data = {}
 
-        # --- Get or create this user's key ---
+        # --- Get or create encryption key ---
         if keywrd in key_data:
             key = key_data[keywrd].encode()
         else:
@@ -163,19 +162,18 @@ class DataManager:
 
         cipher = Fernet(key)
 
-        # --- Convert Python dict → JSON string → bytes ---
-        json_string = json.dumps(integrated_info)
-        json_bytes = json_string.encode()
+        # --- Convert dict → JSON → bytes ---
+        json_bytes = json.dumps(integrated_info).encode()
 
-        # --- Encrypt JSON ---
-        cipher_data = cipher.encrypt(json_bytes)
+        # --- Encrypt ---
+        encrypted = cipher.encrypt(json_bytes)
 
-        # --- Save encrypted data in binary mode ---
+        # --- Write encrypted data ---
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with open(file_path, "wb") as f:
-            f.write(cipher_data)
+            f.write(encrypted)
 
-        print("Encrypted data saved successfully.")
+        print("Saved encrypted data.")
 
 
 if __name__=="__main__":
@@ -189,7 +187,7 @@ if __name__=="__main__":
     fin_struct = DatManage.struct_integrate(in_ent_2)
     fin_struct = DatManage.struct_integrate(in_ent_3)
 
-    DatManage.dat_save(in_ent_1)
+    DatManage.dat_save()
 
     dm = DataManager("Adrian", "Password1234", "old")
     data = dm.dat_retrieve()
