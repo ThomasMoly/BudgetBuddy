@@ -58,6 +58,7 @@ class DataManager:
         self.fin_struct = json.loads(decrypted_str)
 
         print("Data decrypted successfully.")
+        return(self.fin_struct)
 
     def struct_integrate(self, in_ent):
         input_entry=in_ent
@@ -112,7 +113,7 @@ class DataManager:
             if (self.fin_struct[year][month]).get(itm_type, "NULL") == "NULL":
                 self.fin_struct[year][month][itm_type] = {}
             if (self.fin_struct[year][month][itm_type]).get(category, "NULL") == "NULL":
-                self.fin_struct[year][month][itm_type][category] = {}
+                self.fin_struct[year][month][itm_type][category] = []
         (self.fin_struct[year][month][itm_type][category]).append(money_list)
 
     def dat_save(self):
@@ -240,6 +241,5 @@ if __name__=="__main__":
 
     DatManage.dat_save()
 
-    dm = DataManager("Person1", "Password1234", "old")
-    data = dm.dat_retrieve()
+    data = DatManage.dat_retrieve()
     print(data)
